@@ -1,0 +1,14 @@
+Funcionário(matricula(Pk),nome,nascimento,nacionalidade,sexo,estcivil,ra,cpf,dtadmissao,endereço(Fk),n°)
+cargos(idcargo(pk),descrição)
+cargoFunc(id(Pk),matricula(Fk),idcargo(Fk),inicio,fim)
+endereço(Cep(Pk),rua,Bairro,cidade(Fk))
+Municipio(id(Pk),nome,uf(Fk))
+Estado(Uf(Pk),Descricao)
+dependente(idDp(Pk),idFunc(Fk),nome,dtasc)
+
+---Ficha de inscrição de um canditato---
+
+candidato(inscricao(Pk),nome,data,end,n°,email,curso,turno,responsavel,celular)
+curso(codigo(Pk),nome)
+turno(codigo(Pk),nome)
+telefone(id(Pk),inscricao(Fk),telefone)
