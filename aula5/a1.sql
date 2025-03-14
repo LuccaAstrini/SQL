@@ -29,7 +29,6 @@ foreign key (cod_vend) references Vendedor (cod_vend));
 
 create table ItemPedido(
 num_ped int,
-
 cod_prod int,
 qtde_ped int,
 preco numeric(9,2),
@@ -66,14 +65,42 @@ insert into itemPedido values(3,14,5, null);
 insert into itemPedido values(4,13,2, null);
 
 /*1.	Criar uma view para exibir a quantidade de pedidos do cliente Alberto.*/
+create view vw_quantidade as select Cliente.nome_cli, count(num_ped) from cliente join pedido 
+on cliente.cod_cli = pedido.cod_cli where nome_cli = "Alberto";
+
+select * from vw_quantidade;
 
 /* 2.	Criar uma view para exibir o número do pedido, a descrição dos produtos e o nome do vendedor de todos os pedidos.*/
+create view vw_pednum as select pedido.num_ped, desc_prod, nome_vend from pedido
+join vendedor on vendedor.cod_vend = pedido.cod_vend
+join itempedido on pedido.num_ped = itempedido.num_ped
+join produto on produto.cod_prod = itempedido.cod_prod;
+
+select * from vw_pednum;
 
 /* 3.	Criar uma view para exibir o nome dos vendedores que possuem pedidos a serem entregues */
+create view vw_nomped as select nome_vend from vendedor, pedido where vendedor.cod_vend = pedido.cod_vend and data_entr > now();
 
+select * from vw_nomped;
+drop view vw_nomped;
 /* 4.	Criar uma view para encontrar a quantidade de pedidos agrupados por cidade de origem.*/
+create view vw_qtdcid as select count(*), cidade from itempedido, pedido, cliente 
+where pedido.num_ped = itempedido.num_ped and cliente.cod_cli = pedido.cod_cli group by cidade;
 
+select * from vw_qtdcid;
+drop view vw_qtdcid;
 /* 5.	Criar uma view para encontrar o nome dos clientes que possuem pelo menos 7 pedidos */
+create view vw_cliped as select nome_cli from cliente join pedido on cliente.cod_cli = pedido.cod_cli
+join itempedido on itempedido.num_ped = pedido.num_ped where itempedido.qtde_ped >= 7;
 
+select * from vw_cliped;
+drop view vw_cliped;
 /* 6.	Criar uma view Encontrar o nome dos clientes que possuem pedidos com mais de 3 itens vendidos.
 Obs. Eliminar os clientes duplicados. */
+create view vw_vendqtd as select distinct nome_cli from cliente
+join pedido on pedido.cod_cli = cliente.cod_cli
+join itempedido on itempedido.num_ped = pedido.num_ped 
+join produto on produto.cod_prod = itempedido.cod_prod group by pedido.num_ped having count(produto.cod_prod) > 3;
+
+select * from vw_vendqtd;
+drop view vw_vendqtd;
