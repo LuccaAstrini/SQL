@@ -41,6 +41,7 @@ foreign key(cod_prod) references Produto (cod_prod));
 insert into Cliente values (1, "Alberto", "Rua das Flores, 100", "São Paulo");
 insert into Cliente values (2, "Solange", "Av. São Pedro, 420", "São Paulo");
 insert into Cliente values (3, "Marcelo", "Rua Jacob Bitar, 1190", "Jacareí");
+insert into Cliente values (4, "Lucca", "Rua Cajaiba, 389", "São Paulo");
 
 select * from vendedor;
 insert into Vendedor values(200, "Fernando", 1200);
@@ -71,12 +72,18 @@ insert into itemPedido values(4,12,10, null);
 >all = maior doque todos*/
 
 /*1-Clientes que possuem pedido*/
-select c.nome_cli,(select count(p.num_ped) from pedido p where c.cod_cli = p.cod_cli) as qtde_pedidos from cliente c;
+select c.nome_cli as nome_cliente from cliente c where cod_cli in (select p.cod_cli from pedido p); 
 /*2-Clientes que não possuem pedido*/
-select c.nome_cli,(select count(p.num_ped) from pedido p where c.cod_cli != p.cod_cli) as qtde_pedidos from cliente c;
+select nome_cli from cliente where cod_cli not in (select cod_cli from pedido);
 /*3-Clientes que possuem pedido com o vendedor Gabriel*/
 select c.nome_cli from cliente c, pedido p, vendedor v 
 where c.cod_cli = p.cod_cli and p.cod_vend = v.cod_vend and v.nome_vend = "Gabriel";
+#corrigido:
+select nome_cli from cliente where cod_cli in (select cod_cli from pedido, vendedor 
+where pedido.cod_vend = vendedor.cod_vend and vendedor.nome_vend = "Gabriel");
+#forma 2:
+select nome_cli from cliente where cod_cli in (select cod_cli from pedido where cod_vend 
+in(select cod_vend from vendedor where nome_vend = "Gabriel"));
 /*4-Exibir o nome do vendedor que possui salário maior do que pelo menos 1 vendedor de São João"*/
 select v.nome_vend as nome_vendedor from vendedor v where v.salario >some 
 (select v.salario from vendedor v where v.cidade = 'São João');
@@ -91,10 +98,12 @@ select v.nome_vend as nome_vendedor from vendedor v where v.salario >all
 
 UPDATE vendedor SET salario = 2000 WHERE cod_vend = 200;
 /*6-Exibir o nome do cliente e a quantidade de pedidos que realizou*/
-select c.nome_cli,(select count(p.num_ped) from pedido p where c.cod_cli = p.cod_cli) as qtde_pedidos from cliente c;
+select c.nome_cli,(select count(num_ped) from pedido p where c.cod_cli = p.cod_cli) as qtde_pedidos from cliente c;
 
 /* 7-para cada produto, mostrar a quantidade de itens que foram vendidos deste produto */
-select po.desc_prod,(select sum(ip.qtde_ped) from itempedido ip where ip.cod_prod = po.cod_prod) as qtde_produto from produto po;
+select desc_prod,(select sum(qtde_ped) from itempedido ip where ip.cod_prod = po.cod_prod) as qtde_produto from produto po;
 
 /* 8-para cada produto, mostrar a quantidade de itens que foram vendidos deste produto, 
 mostrar também a quantidade de pedidos que comprou cada produto*/
+select po.desc_prod,(select sum(ip.qtde_ped) from itempedido ip where ip.cod_prod = po.cod_prod) as qtde_produto,
+(select count(num_ped) from itempedido ip where ip.cod_prod = po.cod_prod) as qtde_pedidos from produto po;
