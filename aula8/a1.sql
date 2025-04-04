@@ -62,49 +62,94 @@ insert into item values(5,12,2, 28);
 insert into item values(6,13,1, 2779);
 insert into item values(7,14,2, 59);
 
--- Listar os nomes dos cliente cujo sobrenome seja 'Silva'
+-- 1 Listar os nomes dos cliente cujo sobrenome seja 'Silva'
 select nome from cliente where nome like '%Silva';
 
--- Listar os nomes de todos os produtos ordenados pelo nome
+-- 2 Listar os nomes de todos os produtos ordenados pelo nome
 select nome from produto order by nome;
 
--- Listar o código do pedido, a data e o valor total do pedido
+-- 3 Listar o código do pedido, a data e o valor total do pedido
 select p.codPedido as Codigo, p.data, sum(qtde * preco) as total from pedido p, item i 
 where p.codPedido = i.codPedido group by p.codpedido;
 
--- Listar o código do pedido, o nome do cliente, a data e o valor total do pedido
+-- 4 Listar o código do pedido, o nome do cliente, a data e o valor total do pedido
 select p.codPedido as Codigo, c.nome, data,sum(qtde * preco) as total from pedido p, item i, cliente c 
 where p.codPedido = i.codPedido and c.codcliente = p.codcliente group by p.codpedido;
 
 -- Consultas Aninhadas
--- Listar o nome do cliente e o total de todos os pedidos de cada cliente
+-- 5 Listar o nome do cliente e o total de todos os pedidos de cada cliente
 select nome from cliente c where 
 (select count(p.codpedido) as total from pedido p where p.codcliente = c.codcliente) group by p.codpedido;
 
--- Listar o nome do produto mais caro
+-- 6 Listar o nome do produto mais caro
 select nome from produto p where preco >all(select preco from produto where produto.codproduto <> p.codproduto);
 
--- Listar os nomes dos clientes que possuem dois ou mais pedidos 
+-- outro método de fazer
+select nome from produto where preco = (select max(preco) from produto);
+
+-- 7 Listar os nomes dos clientes que possuem dois ou mais pedidos 
 select nome from cliente where codcliente in
 (select codcliente from pedido group by codcliente having count(codpedido) >= 2);
 
--- Listar os nomes dos clientes que fizeram pedidos
+-- outra método de fazer
+select nome from cliente where
+(select count(*) from pedido where pedido.codCliente = cliente.codcliente)>=2;
+
+-- 8 Listar os nomes dos clientes que fizeram pedidos
 select nome from cliente where codcliente in(select codcliente from pedido);
 
--- Listar os nomes dos clientes que não fizeram pedidos
+-- outro método
+select nome from cliente where exists(select * from pedidox
+where pedido.codCliente = cliente.codCliente);
+
+
+-- 9 Listar os nomes dos clientes que não fizeram pedidos
 select nome from cliente where codcliente not in(select codcliente from pedido);
 
 insert into cliente values(6,"Lucca","Rua Mario Beni,41", "Casa Branca");
 select * from cliente;
 
--- Listar os nomes dos produtos que Sérgio e Wanderléia compraram
+-- 10 Listar os nomes dos produtos que Sérgio e Wanderléia compraram
 select (select nome from cliente where p.codcliente = codcliente) as nome, 
 (select nome from produto where codproduto = i.codproduto) as produto from pedido p, item i
 where codcliente in (select codcliente from cliente where nome in("Sérgio", "Wanderléia")) and i.codpedido = p.codpedido;
 
--- Listar os nomes dos produtos comprados por Sérgio e Wanderléia
--- Listar os nomes dos produtos comprados por Sérgio e não por Wanderléia			 
--- Listar os nomes dos produtos comprados por Wanderléia e não por Sérgio
--- Listar os nomes dos produtos que têm preço acima dos preços dos prod. comprados por Wanderléia
--- Listar os nomes dos produtos que têm preço acima de algum prod. comprado por Wanderléia
+-- 11 Listar os nomes dos produtos comprados por Sérgio e Wanderléia
+SELECT 
+(SELECT nome FROM cliente WHERE p.codCliente = codCliente) AS nome, 
+(SELECT nome FROM produto WHERE codProduto = i.codProduto) AS produto 
+FROM pedido p, item i
+WHERE p.codCliente IN (SELECT codCliente FROM cliente WHERE nome IN ("Sérgio", "Wanderléia"))
+AND i.codPedido = p.codPedido;
 
+-- 12 Listar os nomes dos produtos comprados por Sérgio e não por Wanderléia	
+SELECT 
+(SELECT nome FROM cliente WHERE p.codCliente = codCliente) AS nome, 
+(SELECT nome FROM produto WHERE codProduto = i.codProduto) AS produto 
+FROM pedido p, item i
+WHERE p.codCliente = (SELECT codCliente FROM cliente WHERE nome = "Sérgio")
+AND i.codPedido = p.codPedido
+AND p.codCliente NOT IN (SELECT codCliente FROM cliente WHERE nome = "Wanderléia");
+	 
+
+-- 13 Listar os nomes dos produtos comprados por Wanderléia e não por Sérgio
+SELECT 
+(SELECT nome FROM cliente WHERE p.codCliente = codCliente) AS nome, 
+(SELECT nome FROM produto WHERE codProduto = i.codProduto) AS produto 
+FROM pedido p, item i
+WHERE p.codCliente = (SELECT codCliente FROM cliente WHERE nome = "Wanderléia")
+AND i.codPedido = p.codPedido
+AND p.codCliente NOT IN (SELECT codCliente FROM cliente WHERE nome = "Sérgio");
+
+
+-- 14 Listar os nomes dos produtos que têm preço acima dos preços dos prod. comprados por Wanderléia
+SELECT nome
+FROM produto
+WHERE preco > all (select preco FROM Item WHERE codPedido IN 
+(select codPedido FROM pedido WHERE codCliente = (select codCliente from Cliente WHERE nome = "Wanderléia")));
+               
+-- 15 Listar os nomes dos produtos que têm preço acima de algum prod. comprado por Wanderléia
+SELECT nome
+FROM produto
+WHERE preco > some (select preco FROM Item WHERE codPedido IN 
+(select codPedido FROM pedido WHERE codCliente = (select codCliente from Cliente WHERE nome = "Wanderléia")));
