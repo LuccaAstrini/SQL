@@ -75,6 +75,98 @@ call quadrado(5, @valor);
 select @valor;
 
 
+
+/*Crie uma procedure que permita criar uma string com os numeros de 1 a 5 separados por espaço*/
+delimiter $$
+create procedure Ex_while()
+begin
+	Declare x int;
+    Declare str varchar(30);
+    set x = 1;
+    set str = "";
+    while x <= 5 do
+		set str = concat(str,x," ");
+        set x = x + 1;
+	end while;
+    
+    select str as "Impressão";
+end
+$$
+delimiter ;
+drop procedure Ex_while;
+call ex_while();
+
+
+/*Crie uma procedure que permita criar uma string com os numeros de 1 a 5 separados por espaço*/
+delimiter $$
+create procedure Ex_Repeat()
+begin
+	Declare x int;
+    Declare str varchar(30);
+    set x = 1;
+    set str = "";
+    Repeat
+		set str = concat(str,x," ");
+        set x = x + 1;
+        until x>5
+	end repeat;
+    
+    select str as "Impressão";
+end
+$$
+delimiter ;
+drop procedure Ex_Repeat;
+call Ex_Repeat();
+
+/*Crie uma procedure que permita criar uma string com os numeros de 1 a 5 separados por espaço*/
+delimiter $$
+create procedure Ex_Loop(limite int)
+begin
+	Declare contador int default 0;
+    declare soma int default 0;
+
+    loopTeste : loop
+		set contador = contador + 1;
+        set soma = soma + contador;
+        
+			if contador>= limite then
+				leave	loopTeste;
+                end if;
+			end loop loopTeste;
+            select soma;
+end;
+$$
+delimiter ;
+drop procedure Ex_Loop;
+call Ex_Loop(10);
+
+/*usando loop crie uma procedure de todos os valores de 0 até 10 e imprima apenas os numeros pares*/
+delimiter $$
+create procedure Ex_LoopPares()
+begin
+declare x int;
+declare str varchar(30);
+set x = 0;
+set str = "";
+	loopTeste : Loop
+		if x> 10 then
+			leave loopTeste;
+        end if;
+		
+        set x = x+1;
+        if(x mod 2 != 0) then
+			iterate loopTeste;
+		else
+            set str = concat(str,x," ");
+		end if;
+	end loop;
+    select str;
+end;
+$$
+delimiter ;
+drop procedure Ex_LoopPares;
+call Ex_LoopPares();
+
 /*Teste*/
 delimiter $$
 create procedure Ola()
@@ -97,3 +189,6 @@ $$
 delimiter ;
 
 call msg1(0);
+
+
+
