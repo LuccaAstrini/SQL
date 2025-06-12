@@ -49,7 +49,7 @@ drop procedure alterarCorrentista;
 call alterarCorrentista (2,"GoKUUUUUUUUUUUUUUU OLhas vieeeenn", "495.748.258-69");
 select * from correntista;
 
-/*Exercicio 3.Criar uma procedure para Cotar a quantidade de registros da tabela Correntista, esta procedure
+/*Exercicio 3.Criar uma procedure para Contar a quantidade de registros da tabela Correntista, esta procedure
 deverá retornar um valor do tipo inteiro contendo a quantidade de correntistas.*/
 delimiter $$
 create procedure contCorrentista(out qtd int)
@@ -62,7 +62,8 @@ delimiter ;
 call contCorrentista(@total);
 select @total;
 
-/* Exercicio 4. Criar uma Procedure que receba um valor por parâmetro, calcule o quadrado desse valor e retorne o valor ao quadrado*/
+/* Exercicio 4. Criar uma Procedure que receba um valor por parâmetro,
+ calcule o quadrado desse valor e retorne o valor ao quadrado*/
 delimiter $$
 create procedure Quadrado(num int, out quadrado int)
 begin
